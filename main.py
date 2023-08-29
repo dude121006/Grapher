@@ -45,6 +45,7 @@ def GraphPaper(k):
 
 def main():
     active = True
+    done = False
 
     # Pixels per grid
     pixPerGrid = 25
@@ -83,8 +84,62 @@ def main():
             if event.type == pygame.QUIT:
                 active = False
 
-    # Quitting pygame
-    pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                
+                #number keys
+                if event.key == pygame.K_0:
+                    equations.append("0")
+                elif event.key == pygame.K_1:
+                    equations.append("1")
+                elif event.key == pygame.K_2:
+                    equations.append("2")
+                elif event.key == pygame.K_3:
+                    equations.append("3")
+                elif event.key == pygame.K_4:
+                    equations.append("4")
+                elif event.key == pygame.K_5:
+                    equations.append("5")
+                elif event.key == pygame.K_6:
+                    equations.append("6")
+                elif event.key == pygame.K_7:
+                    equations.append("7")
+                elif event.key == pygame.K_8:
+                    equations.append("8")
+                elif event.key == pygame.K_9:
+                    equations.append("9")
+
+                #unicode keys
+                if event.unicode == u'*':
+                    equations.append("*")
+                if event.unicode == u'+':
+                    equations.append("+")
+                if event.unicode == u'-':
+                    equations.append("-")
+                if event.unicode == u'/':
+                    equations.append("/")
+                if event.unicode == u'.':
+                    equations.append(".")
+                if event.unicode == u'(':
+                    equations.append("(")
+                if event.unicode == u')':
+                    equations.append(")")
+                if event.unicode == u'^':
+                    equations.append("**")
+
+                #variable keys
+                if event.key == pygame.K_x:
+                    equations.append('x')
+
+                elif event.key == pygame.K_RETURN:
+                    active = False
+
+
+
+    if done:
+        # Quitting pygame
+        pygame.quit()
+    else:
+        win.set_clip()
 
 
 main()
