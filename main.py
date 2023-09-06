@@ -1,6 +1,7 @@
 import pygame
 import math
 import string
+import numpy
 
 
 pygame.init()
@@ -11,7 +12,7 @@ totalWidth = width + extraWidth
 oriX, oriY = width / 2, height / 2
 
 
-pixPerGrid = 50
+pixPerGrid = 30
 font = pygame.font.SysFont("Verdana", 16)
 font2 = pygame.font.SysFont("Serif", 24)
 
@@ -22,6 +23,9 @@ pink = (147, 80, 171)
 green = (76, 168, 100)
 transparent = (0, 0, 0)
 
+customX_min, customX_max = -10, 10
+customY_min, customY_max = -10, 10
+
 
 # Creating windows and surfaces
 win = pygame.display.set_mode(
@@ -30,25 +34,22 @@ win = pygame.display.set_mode(
 pygame.display.set_caption("My advanced grapher")
 win.fill(white)
 
+#Create graph surfaces and fill it 
 graph = pygame.Surface((width, height))
 graph.fill(white)
 
 
 def Eval(eqn):
-
-    #if 'x' in eqn:
-        for x in range(-width, math.floor(width), 1):
-
-            try:
-                y = eval(eqn)
-                print("x: ", x, "  y: ", y)
-                rect = ((x + width/2, -y + height/2), (2, 2))
-                pygame.draw.rect(graph, green, rect)
-
-            except Exception as e:
-                print("Eval exception: ", e)
-                
-        
+    for x in range(-width, width, 1):
+        try:
+            custom_x = ScreenToCustomX(x)
+            y = eval(eqn.replace("x", str(custom_x)))
+            screen_x = CustomToScreenX(custom_x)
+            screen_y = CustomToScreenY(y)
+            rect = ((screen_x, screen_y), (1, 1))
+            pygame.draw.rect(graph, "blue", rect)
+        except Exception as e:
+            pass
 
 
 def DrawLine(coord, slope, color=green, thickness=3):
@@ -111,6 +112,23 @@ def RenderInstructions():
     win.blit(instruct, (width + 15, 70))
 
 
+def ScreenToCustomX(x):
+    return customX_min + (x / width) * (customX_max - customX_min)
+
+def ScreenToCustomY(y):
+    return customY_max - (y / height) * (customY_max - customY_min)
+
+def CustomToScreenX(x):
+    return int((x - customX_min) / (customX_max - customX_min) * width)
+
+def CustomToScreenY(y):
+    return int((customY_max - y) / (customY_max - customY_min) * height)
+
+# ? testing
+print("50 to custom: ", ScreenToCustomX(50))
+print(CustomToScreenX(-8.88888888888889))
+
+ 
 def main():
     active = True
     done = False
@@ -120,17 +138,24 @@ def main():
     # Equations
     equations = []
 
+
     # Active loop
     while active:
         # update loop
         pygame.display.update()
 
+        #render the graph and clear the graph
         win.blit(graph, (0, 0))
+        graph.fill(white)
 
+        #rendering the equations and graph
         eqn = RenderEquations(equations)
         DrawGraph(pixPerGrid)
- 
-        graph.fill(white)
+
+        #quitting from the terminal
+        #!))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+        #DrawLine(ScreenToCustomY(50), 'h')
+        
 
         # Handling events
         for event in pygame.event.get():
@@ -189,13 +214,18 @@ def main():
 
         pygame.display.flip()
 
-        try:
-            #result = eval(eqn)
-            Eval(eqn)
-            #DrawLine(result, "h")
-        except Exception as e:
-            print(e)
+        ######################################
 
+        #evaluate and print the equation
+        try:
+            Eval(eqn)
+
+        except Exception as e:
+            #print(e)
+            pass
+
+
+    #ending the loop and quitting the program
     if done:
         # Quitting pygame
         pygame.quit()
@@ -204,5 +234,3 @@ def main():
 
 
 main()
-
-
