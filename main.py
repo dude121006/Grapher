@@ -1,63 +1,38 @@
 import pygame
 import math
-import string
 import numpy
 
 
 pygame.init()
 
-width, height = 900, 600
+width, height = 600, 600
 extraWidth = 300
 totalWidth = width + extraWidth
 oriX, oriY = width / 2, height / 2
-
+centerX, centerY = width/2, height/2
 
 pixPerGrid = 30
 font = pygame.font.SysFont("Verdana", 16)
 font2 = pygame.font.SysFont("Serif", 24)
 
-white = (150, 145, 181)
+white = (191, 191, 191)
 blue = (81, 66, 179)
 black = (0, 0, 0)
 pink = (147, 80, 171)
 green = (76, 168, 100)
 transparent = (0, 0, 0)
 
-customX_min, customX_max = -10, 10
-customY_min, customY_max = -10, 10
-
 
 # Creating windows and surfaces
 win = pygame.display.set_mode(
     (width + extraWidth, height),
 )
-pygame.display.set_caption("My advanced grapher")
+pygame.display.set_caption("EasyGraph")
 win.fill(white)
 
 #Create graph surfaces and fill it 
 graph = pygame.Surface((width, height))
 graph.fill(white)
-
-
-def Eval(eqn):
-    for x in range(-width, width, 1):
-        try:
-            custom_x = ScreenToCustomX(x)
-            y = eval(eqn.replace("x", str(custom_x)))
-            screen_x = CustomToScreenX(custom_x)
-            screen_y = CustomToScreenY(y)
-            rect = ((screen_x, screen_y), (1, 1))
-            pygame.draw.rect(graph, "blue", rect)
-        except Exception as e:
-            pass
-
-
-def DrawLine(coord, slope, color=green, thickness=3):
-    if slope.lower() == "v":
-        pygame.draw.line(graph, color, (coord, 0), (coord, height), thickness)
-
-    elif slope.lower() == "h":
-        pygame.draw.line(graph, color, (0, coord), (totalWidth, coord), thickness)
 
 
 def DrawGraph(k):
@@ -76,8 +51,7 @@ def DrawGraph(k):
 
     pygame.draw.line(win, black, (midX, 0), (midX, height), 3)
     pygame.draw.line(win, black, (0, midY), (width, midY), 3)
-    # DrawLine(oriX, 'v', black, 3)
-    # DrawLine(oriY, 'h', black, 3)
+
 
     # border splitting the two sections
     pygame.draw.line(win, black, (width - 1, 0), (width - 1, height), 1)
@@ -92,7 +66,6 @@ def RenderEquations(equations):
 
     # Join eqn array without commams
     eqn = "".join(equations)
-    # eqn = str.replace(eqn, " ", "")
 
     # rendering the equations
     eqnshow = font.render(" y = " + eqn, 1, black)
@@ -112,22 +85,21 @@ def RenderInstructions():
     win.blit(instruct, (width + 15, 70))
 
 
-def ScreenToCustomX(x):
-    return customX_min + (x / width) * (customX_max - customX_min)
+def Eval(eqn):
+    points = []
+    
+    for x in numpy.arange(-width/2, width/2, 10):
+        try:
+            customX = x + width / 2
+            y = eval(eqn)
+            
+            points.append((customX, height - (y + height/2)))
 
-def ScreenToCustomY(y):
-    return customY_max - (y / height) * (customY_max - customY_min)
+        except Exception as e:
+            print(e)
+    return points
 
-def CustomToScreenX(x):
-    return int((x - customX_min) / (customX_max - customX_min) * width)
-
-def CustomToScreenY(y):
-    return int((customY_max - y) / (customY_max - customY_min) * height)
-
-# ? testing
-print("50 to custom: ", ScreenToCustomX(50))
-print(CustomToScreenX(-8.88888888888889))
-
+    
  
 def main():
     active = True
@@ -138,7 +110,6 @@ def main():
     # Equations
     equations = []
 
-
     # Active loop
     while active:
         # update loop
@@ -148,15 +119,11 @@ def main():
         win.blit(graph, (0, 0))
         graph.fill(white)
 
+
         #rendering the equations and graph
         eqn = RenderEquations(equations)
         DrawGraph(pixPerGrid)
-
-        #quitting from the terminal
-        #!))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-        #DrawLine(ScreenToCustomY(50), 'h')
         
-
         # Handling events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -214,14 +181,12 @@ def main():
 
         pygame.display.flip()
 
-        ######################################
-
         #evaluate and print the equation
         try:
-            Eval(eqn)
+            points = Eval(eqn)
+            pygame.draw.lines(win, (255, 0, 0, 0),  False, points*100, 3)
 
         except Exception as e:
-            #print(e)
             pass
 
 
